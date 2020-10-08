@@ -1,0 +1,42 @@
+version: '2'
+services:
+  mariadb:
+    image: 'bitnami/mariadb:10.5'
+    restart: always
+    ports:
+      - '3400:3306'
+    volumes:
+      - '/volumes/mariadb-persistence:/bitnami/mariadb'
+    environment:
+         - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+         - MARIADB_ROOT_USER=${MARIADB_ROOT_USER}
+         - MARIADB_DATABASE=${MARIADB_DATABASE}
+         - ALLOW_EMPTY_PASSWORD=no
+  wordpress:
+    image: 'bitnami/wordpress-nginx:5'
+    restart: always
+    ports:
+      - '80:8080'
+      - '443:8443'
+    volumes:
+      - '/volumes/wordpress-persistence:/bitnami/wordpress'
+      - '/volumes/nginx-persistence/certificates:/certificates:ro'
+      - '/volumes/nginx-persistence/wordpress-server-block.conf:/opt/bitnami/nginx/conf/server_blocks/wordpress-server-block.conf:ro'
+      - '/volumes/bitnami-persistence/bitnami-php.ini:/opt/bitnami/php/etc/php.ini'
+    depends_on:
+      - mariadb
+    environment:
+         #- NAMI_LOG_LEVEL=trace
+         - MARIADB_HOST=mariadb
+         - MARIADB_PORT_NUMBER=3306
+         - ALLOW_EMPTY_PASSWORD=no
+         - WORDPRESS_USERNAME=${WORDPRESS_USERNAME}
+         - WORDPRESS_PASSWORD=${WORDPRESS_PASSWORD}
+         - WORDPRESS_EMAIL=${WORDPRESS_EMAIL}
+         - WORDPRESS_FIRST_NAME=${WORDPRESS_FIRST_NAME}
+         - WORDPRESS_LAST_NAME=${WORDPRESS_LAST_NAME}
+         - WORDPRESS_BLOG_NAME=${WORDPRESS_BLOG_NAME}
+         - WORDPRESS_SCHEME=${WORDPRESS_SCHEME}
+         - WORDPRESS_DATABASE_NAME=${MARIADB_DATABASE}
+         - WORDPRESS_DATABASE_USER=${MARIADB_ROOT_USER}
+         - WORDPRESS_DATABASE_PASSWORD=${MARIADB_ROOT_PASSWORD}
